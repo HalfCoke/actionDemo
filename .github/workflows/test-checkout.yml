@@ -1,0 +1,32 @@
+name: test checkout
+
+on:
+#  schedule:
+#    - cron:  '0 0 * * *'
+    # scheduled at 07:12 every Monday and Thursday
+  workflow_dispatch:
+
+jobs:
+  checkout:
+    runs-on: ubuntu-latest
+    name: checkout
+    steps:
+      # Step 1: run a standard checkout action, provided by github
+      - name: Checkout HEAD
+        uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: save pwd
+        run: "pwd"
+      - name: list dir
+        run: "ls -l -a"
+      - name: pause for debug
+        uses: HalfCoke/gitactions-debugger@v1
+        continue-on-error: true
+        with:
+          frp_server_addr: ${{ secrets.FRP_SERVER_ADDR }}
+          frp_server_port: ${{ secrets.FRP_SERVER_PORT }}
+          frp_token: ${{ secrets.FRP_TOKEN }}
+          ssh_port: ${{ secrets.SSH_PORT }}
+          timeout: 30
+    
