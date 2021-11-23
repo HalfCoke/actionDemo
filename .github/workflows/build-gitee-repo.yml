@@ -1,6 +1,11 @@
+# 文件需要在github action中运行
 name: Build Gitee Repo
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Software version"
+        required: true
 
 env:
   REPO_URL: ${{  secrets.REPO_URL  }}
@@ -23,3 +28,18 @@ jobs:
           cd gitee_repo/eqmanager-main
           echo "WORK_DIR=$(pwd)" >> $GITHUB_ENV
           ls -l -a
+      - name: Set ENV
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          echo "RELEASE_VERSION_ALL=${VERSION}" >> $GITHUB_ENV
+          echo "RELEASE_VERSION_SUB=${VERSION:0:3}" >> $GITHUB_ENV
+          echo "RELEASE_VERSION_MAIN=${VERSION:0:1}" >> $GITHUB_ENV
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: halfcoke/eqmanager
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          tags: "latest,${{ env.RELEASE_VERSION_ALL }},${{ env.RELEASE_VERSION_SUB }},${{ env.RELEASE_VERSION_MAIN }}"
+          dockerfile: ${{ env.WORK_DIR }}/Dockerfile
+          workdir: ${{ env.WORK_DIR }}
