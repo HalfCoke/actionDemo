@@ -1,0 +1,25 @@
+name: Build Gitee Repo
+on:
+  workflow_dispatch:
+
+env:
+  REPO_URL: ${{  secrets.REPO_URL  }}
+  REPO_BRANCH: ${{  secrets.REPO_BRANCH  }}
+  PRIVATE_KEY: ${{  secrets.PRIVATE_KEY  }}
+  PUBLIC_KEY: ${{  secrets.PUBLIC_KEY  }}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build
+    steps:
+      - name: Clone Repo
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+          echo "$PUBLIC_KEY" > ~/.ssh/id_rsa.pub
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+          git clone "$REPO_URL" -b "$REPO_BRANCH" gitee_repo
+          cd gitee_repo/eqmanager-main
+          echo "WORK_DIR=$(pwd)" >> $GITHUB_ENV
+          ls -l -a
