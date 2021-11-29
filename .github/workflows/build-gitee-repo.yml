@@ -34,6 +34,16 @@ jobs:
           echo "RELEASE_VERSION_ALL=${VERSION}" >> $GITHUB_ENV
           echo "RELEASE_VERSION_SUB=${VERSION:0:3}" >> $GITHUB_ENV
           echo "RELEASE_VERSION_MAIN=${VERSION:0:1}" >> $GITHUB_ENV
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: halfcoke/eqmanager
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          tags: "latest,${{ env.RELEASE_VERSION_ALL }},${{ env.RELEASE_VERSION_SUB }},${{ env.RELEASE_VERSION_MAIN }}"
+          dockerfile: ${{ env.WORK_DIR }}/Dockerfile
+          workdir: ${{ env.WORK_DIR }}
+          cache: true
       - name: Publish to Ali Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
@@ -44,14 +54,4 @@ jobs:
           dockerfile: ${{ env.WORK_DIR }}/Dockerfile
           workdir: ${{ env.WORK_DIR }}
           registry: registry.cn-beijing.aliyuncs.com
-          cache: true
-      - name: Publish to Registry
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: halfcoke/eqmanager
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          tags: "latest,${{ env.RELEASE_VERSION_ALL }},${{ env.RELEASE_VERSION_SUB }},${{ env.RELEASE_VERSION_MAIN }}"
-          dockerfile: ${{ env.WORK_DIR }}/Dockerfile
-          workdir: ${{ env.WORK_DIR }}
           cache: true
